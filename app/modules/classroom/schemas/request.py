@@ -1,11 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
 
 class PupitreInSchema (BaseModel):
     estado_pupitre : bool
-    observacion : str|None
+    observacion: str | None = Field(default=None, max_length=400)
 
 
 class BulkUpdateRequest (BaseModel):
-    estudiantes_ids: list[int]
     estado_pupitre: bool
-    observacion: str | None
+    observacion: str | None = Field(default=None, max_length=400)

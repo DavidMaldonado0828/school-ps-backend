@@ -9,37 +9,10 @@ from app.modules.classroom.schemas.request import (
 )
 from app.modules.classroom.schemas.response import PupitreOutSchema
 from app.shared.utils.response import Response
+from app.modules.classroom.schemas.response import BulkUpdateResponse
+
 
 router = APIRouter()
-
-
-@router.patch("/pupitre/{estudiante_id}")
-async def actualizar_estado_pupitre(
-    session: SessionDep,
-    estudiante_id: int,
-    request: PupitreInSchema,
-):
-    use_case = UpdatePupitreState(session=session)
-    data = await use_case.execute(estudiante_id=estudiante_id, request=request)
-
-    if not data:
-        return Response(
-            data=None,
-            message="No se encontró el pupitre del estudiante",
-            status_code=status.HTTP_404_NOT_FOUND,
-            details={"message": "No se encontró el pupitre del estudiante"},
-        ).to_dict()
-
-    return Response(
-        data=PupitreOutSchema(
-            id=data.id,
-            estado_pupitre=data.estado_pupitre,
-            observacion=data.observacion,
-        ),
-        message="Estado del pupitre actualizado exitosamente",
-        status_code=status.HTTP_200_OK,
-        details={"message": "Estado del pupitre actualizado exitosamente"},
-    ).to_dict()
 
 
 @router.patch("/pupitre/grado/{grado_id}")
@@ -60,8 +33,47 @@ async def actualizar_estado_masivo(
         ).to_dict()
 
     return Response(
-        data=data,
+        data=BulkUpdateResponse(total_actualizados=data["total_actualizados"]),
         message="Estado de pupitres actualizado exitosamente",
         status_code=status.HTTP_200_OK,
         details={"message": "Estado de pupitres actualizado exitosamente"},
     ).to_dict()
+
+
+@router.patch("/pupitre/{estudiante_id}")
+async def actualizar_estado_pupitre(
+    session: SessionDep,
+    estudiante_id: int,
+    request: PupitreInSchema,
+):
+    use_case = UpdatePupitreState(session=session)
+    data = await use_case.execute(estudiante_id=estudiante_id, request=request)
+
+    if not data:
+        return Response(
+            data=None,
+            message="No se encontró el pupitre del estudiante",
+            status_code=status.HTTP_404_NOT_FOUND,
+            details={"message": "No se encontró el pupitre del estudiante"},
+        ).to_dict()
+    
+    if not data.id:  
+        return Response(
+            data=None,
+            message="Error al actualizar el pupitre",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            details={"message": "Error al actualizar el pupitre"},
+        ).to_dict()
+
+    return Response(
+        data=PupitreOutSchema(
+            id=data.id,
+            estado_pupitre=data.estado_pupitre,
+            observacion=data.observacion,
+        ),
+        message="Estado del pupitre actualizado exitosamente",
+        status_code=status.HTTP_200_OK,
+        details={"message": "Estado del pupitre actualizado exitosamente"},
+    ).to_dict()
+
+
