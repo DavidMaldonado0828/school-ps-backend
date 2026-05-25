@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status
 
 from app.core.db import SessionDep
+from app.modules.classroom.application.get_pupitres import GetPupitresByGrade
 from app.modules.classroom.application.update_pupitre import UpdatePupitreState
 from app.modules.classroom.application.bulk_update_pupitre import BulkUpdatePupitreState
 from app.modules.classroom.schemas.request import (
@@ -13,6 +14,30 @@ from app.modules.classroom.schemas.response import BulkUpdateResponse
 
 
 router = APIRouter()
+
+@router.get("/pupitre/grado/{grado_id}")
+async def obtener_pupitres_por_grado(
+    grado_id: int,
+    session: SessionDep,
+):
+    use_case = GetPupitresByGrade(session=session)
+    data = await use_case.execute(grado_id=grado_id)
+    if not data:
+        return Response(
+            data=None,
+            message="No se encontraron pupitres para el grado",
+            status_code=status.HTTP_404_NOT_FOUND,
+        ).to_dict()
+    return Response(
+        data=[PupitreOutSchema(
+            id=pupitre.id,
+            estudiante_id=pupitre.estudiante_id,
+            estado_pupitre=pupitre.estado_pupitre,
+            observacion=pupitre.observacion
+        ) for pupitre in data],
+        message="Pupitres obtenidos exitosamente",
+        status_code=status.HTTP_200_OK,
+    ).to_dict()
 
 
 @router.patch("/pupitre/grado/{grado_id}")
@@ -68,6 +93,7 @@ async def actualizar_estado_pupitre(
     return Response(
         data=PupitreOutSchema(
             id=data.id,
+            estudiante_id=data.estudiante_id,
             estado_pupitre=data.estado_pupitre,
             observacion=data.observacion,
         ),

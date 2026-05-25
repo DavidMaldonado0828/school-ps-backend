@@ -24,6 +24,12 @@ class PupitreService():
             pupitre.observacion = observacion
         total = await self.repositorio.guardar_muchos_pupitres(pupitres)
         return {"total_actualizados": total}
+    
+    async def obtener_pupitres(self, grado_id: int):
+        pupitres = await self.repositorio.obtener_por_grado(grado_id)
+        if not pupitres:
+            return None
+        return pupitres
         
        
 
