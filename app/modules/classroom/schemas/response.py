@@ -8,5 +8,13 @@ class PupitreOutSchema(BaseModel):
     observacion: str | None = Field(default=None, max_length=400)
 
 
+class PupitreStudentOutSchema(BaseModel):
+    id: int | None
+    nombre_estudiante: str
+    documento: str
+    estado_pupitre: bool
+    observacion: str | None = Field(default=None, max_length=400)
+
+
 class BulkUpdateResponse(BaseModel):
     total_actualizados: int

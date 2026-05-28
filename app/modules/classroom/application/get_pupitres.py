@@ -10,3 +10,14 @@ class GetPupitresByGrade:
 
     async def execute(self, grado_id: int):
         return await self.service.obtener_pupitres(grado_id=grado_id)
+
+
+class GetPupitreByStudent:
+    def __init__(self, session: SessionDep):
+        self.repository = PupitreRepositoryImpl(session=session)
+        self.service = PupitreService(repositorio=self.repository)
+
+    async def execute(self, estudiante_id: int):
+        return await self.service.obtener_pupitre_por_estudiante(
+            estudiante_id=estudiante_id
+        )

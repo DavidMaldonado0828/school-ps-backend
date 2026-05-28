@@ -30,7 +30,13 @@ class PupitreService:
         return {"total_actualizados": total}
 
     async def obtener_pupitres(self, grado_id: int):
-        pupitres = await self.repositorio.obtener_por_grado(grado_id)
+        pupitres = await self.repositorio.obtener_por_grado_con_estudiante(grado_id)
         if not pupitres:
             return None
         return pupitres
+
+    async def obtener_pupitre_por_estudiante(self, estudiante_id: int):
+        pupitre = await self.repositorio.obtener_por_estudiante_con_datos(estudiante_id)
+        if not pupitre:
+            return None
+        return pupitre

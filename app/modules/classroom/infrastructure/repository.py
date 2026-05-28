@@ -40,3 +40,18 @@ class PupitreRepositoryImpl(PupitreRepository):
         except Exception:
             self.session.rollback()
             raise
+
+    async def obtener_por_grado_con_estudiante(self, grado_id: int):
+        results = self.session.exec(
+            select(Pupitre, Estudiante)
+            .join(Estudiante)
+            .where(Estudiante.grado_id == grado_id)
+        ).all()
+        return results
+
+    async def obtener_por_estudiante_con_datos(self, estudiante_id: int):
+        return self.session.exec(
+            select(Pupitre, Estudiante)
+            .join(Estudiante)
+            .where(Pupitre.estudiante_id == estudiante_id)
+        ).one_or_none()

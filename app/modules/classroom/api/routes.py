@@ -1,14 +1,20 @@
 from fastapi import APIRouter, status
 
 from app.core.db import SessionDep
-from app.modules.classroom.application.get_pupitres import GetPupitresByGrade
+from app.modules.classroom.application.get_pupitres import (
+    GetPupitresByGrade,
+    GetPupitreByStudent,
+)
 from app.modules.classroom.application.update_pupitre import UpdatePupitreState
 from app.modules.classroom.application.bulk_update_pupitre import BulkUpdatePupitreState
 from app.modules.classroom.schemas.request import (
     PupitreInSchema,
     BulkUpdateRequest,
 )
-from app.modules.classroom.schemas.response import PupitreOutSchema
+from app.modules.classroom.schemas.response import (
+    PupitreOutSchema,
+    PupitreStudentOutSchema,
+)
 from app.shared.utils.response import Response
 from app.modules.classroom.schemas.response import BulkUpdateResponse
 
@@ -31,15 +37,44 @@ async def obtener_pupitres_por_grado(
         ).to_dict()
     return Response(
         data=[
-            PupitreOutSchema(
+            PupitreStudentOutSchema(
                 id=pupitre.id,
-                estudiante_id=pupitre.estudiante_id,
+                nombre_estudiante=estudiante.nombre,
+                documento=estudiante.documento,
                 estado_pupitre=pupitre.estado_pupitre,
                 observacion=pupitre.observacion,
             )
-            for pupitre in data
+            for pupitre, estudiante in data
         ],
         message="Pupitres obtenidos exitosamente",
+        status_code=status.HTTP_200_OK,
+    ).to_dict()
+
+
+@router.get("/pupitre/{estudiante_id}")
+async def obtener_pupitre_estudiante(
+    estudiante_id: int,
+    session: SessionDep,
+):
+    use_case = GetPupitreByStudent(session=session)
+    data = await use_case.execute(estudiante_id=estudiante_id)
+    if not data:
+        return Response(
+            data=None,
+            message="No se encontró el pupitre del estudiante",
+            status_code=status.HTTP_404_NOT_FOUND,
+        ).to_dict()
+    pupitre = data[0]
+    estudiante = data[1]
+    return Response(
+        data=PupitreStudentOutSchema(
+            id=pupitre.id,
+            nombre_estudiante=estudiante.nombre,
+            documento=estudiante.documento,
+            estado_pupitre=pupitre.estado_pupitre,
+            observacion=pupitre.observacion,
+        ),
+        message="Pupitre obtenido exitosamente",
         status_code=status.HTTP_200_OK,
     ).to_dict()
 
