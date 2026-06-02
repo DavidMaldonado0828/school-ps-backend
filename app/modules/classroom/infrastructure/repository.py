@@ -1,57 +1,51 @@
 from sqlmodel import select
 from app.core.db import SessionDep
 from app.modules.classroom.infrastructure.models import Pupitre
-from app.modules.enrollment.infrastructure.models import Estudiante
 from app.modules.classroom.domain.repositories import PupitreRepository
-
+from sqlmodel import col
+from sqlalchemy.exc import SQLAlchemyError
 
 class PupitreRepositoryImpl(PupitreRepository):
     def __init__(self, session: SessionDep):
         self.session = session
 
-    # Se obtiene el pupitre por el id del estudiante, si no existe retorna None
-    async def obtener_por_estudiante(self, estudiante_id: int) -> Pupitre | None:
+    async def obtener_detalle_estudiante(self, estudiante_id: int) -> Pupitre | None:
         return self.session.exec(
             select(Pupitre).where(Pupitre.estudiante_id == estudiante_id)
         ).one_or_none()
 
-    # Se guarda el estado del pupitre, si el pupitre no existe, retornamos None
-    async def guardar_pupitre(self, pupitre: Pupitre) -> Pupitre:
-        self.session.add(pupitre)
+    async def actualizar_estado_pupitre(self, pupitre: Pupitre) -> Pupitre:
         self.session.commit()
         self.session.refresh(pupitre)
         return pupitre
 
-    # Se obtienen todos los pupitres de un grado, si no existen retorna None
-    async def obtener_por_grado(self, grado_id: int) -> list[Pupitre]:
+    async def obtener_detalle_estudiantes(
+        self, estudiante_ids: list[int]
+    ) -> list[Pupitre]:
         return list(
             self.session.exec(
-                select(Pupitre).join(Estudiante).where(Estudiante.grado_id == grado_id)
+                select(Pupitre).where(col(Pupitre.estudiante_id).in_(estudiante_ids))
             ).all()
         )
 
-    # Se guardan una lista de pupitres, retornamos la lista de pupitres guardados
-    async def guardar_muchos_pupitres(self, pupitres: list[Pupitre]) -> int:
+    async def actualizar_estados_pupitres(self, pupitres: list[Pupitre]) -> int:
         try:
-            for pupitre in pupitres:
-                self.session.add(pupitre)
             self.session.commit()
             return len(pupitres)
-        except Exception:
+        except SQLAlchemyError:
             self.session.rollback()
             raise
-
-    async def obtener_por_grado_con_estudiante(self, grado_id: int):
-        results = self.session.exec(
-            select(Pupitre, Estudiante)
-            .join(Estudiante)
-            .where(Estudiante.grado_id == grado_id)
-        ).all()
-        return results
-
-    async def obtener_por_estudiante_con_datos(self, estudiante_id: int):
-        return self.session.exec(
-            select(Pupitre, Estudiante)
-            .join(Estudiante)
-            .where(Pupitre.estudiante_id == estudiante_id)
-        ).one_or_none()
+    
+    async def crear_pupitre(self, estudiante_id: int, estado_pupitre: bool, observacion: str | None) -> Pupitre:
+        try:
+            nuevo_pupitre = Pupitre(
+                estudiante_id=estudiante_id, estado_pupitre=estado_pupitre, observacion=observacion
+            )
+            self.session.add(nuevo_pupitre)
+            self.session.commit()
+            self.session.refresh(nuevo_pupitre)
+            return nuevo_pupitre
+        except SQLAlchemyError:
+            self.session.rollback()
+            raise
+        

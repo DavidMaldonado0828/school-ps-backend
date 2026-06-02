@@ -1,10 +1,7 @@
 from fastapi import APIRouter, status
-
 from app.core.db import SessionDep
-from app.modules.classroom.application.get_pupitres import (
-    GetPupitresByGrade,
-    GetPupitreByStudent,
-)
+from app.modules.classroom.application.get_pupitres_by_grade import GetPupitresByGrade
+from app.modules.classroom.application.get_pupitre_by_student import GetPupitreByStudent
 from app.modules.classroom.application.update_pupitre import UpdatePupitreState
 from app.modules.classroom.application.bulk_update_pupitre import BulkUpdatePupitreState
 from app.modules.classroom.schemas.request import (
@@ -13,7 +10,6 @@ from app.modules.classroom.schemas.request import (
 )
 from app.modules.classroom.schemas.response import (
     PupitreOutSchema,
-    PupitreStudentOutSchema,
 )
 from app.shared.utils.response import Response
 from app.modules.classroom.schemas.response import BulkUpdateResponse
@@ -36,16 +32,7 @@ async def obtener_pupitres_por_grado(
             status_code=status.HTTP_404_NOT_FOUND,
         ).to_dict()
     return Response(
-        data=[
-            PupitreStudentOutSchema(
-                id=pupitre.id,
-                nombre_estudiante=estudiante.nombre,
-                documento=estudiante.documento,
-                estado_pupitre=pupitre.estado_pupitre,
-                observacion=pupitre.observacion,
-            )
-            for pupitre, estudiante in data
-        ],
+        data=data,
         message="Pupitres obtenidos exitosamente",
         status_code=status.HTTP_200_OK,
     ).to_dict()
@@ -64,20 +51,11 @@ async def obtener_pupitre_estudiante(
             message="No se encontró el pupitre del estudiante",
             status_code=status.HTTP_404_NOT_FOUND,
         ).to_dict()
-    pupitre = data[0]
-    estudiante = data[1]
     return Response(
-        data=PupitreStudentOutSchema(
-            id=pupitre.id,
-            nombre_estudiante=estudiante.nombre,
-            documento=estudiante.documento,
-            estado_pupitre=pupitre.estado_pupitre,
-            observacion=pupitre.observacion,
-        ),
+        data=data,
         message="Pupitre obtenido exitosamente",
         status_code=status.HTTP_200_OK,
     ).to_dict()
-
 
 @router.patch("/pupitre/grado/{grado_id}")
 async def actualizar_estado_masivo(

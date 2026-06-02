@@ -1,31 +1,26 @@
 from abc import ABC, abstractmethod
 from app.modules.classroom.infrastructure.models import Pupitre
-from app.modules.enrollment.infrastructure.models import Estudiante
 
 
 class PupitreRepository(ABC):
     @abstractmethod
-    async def obtener_por_estudiante(self, estudiante_id: int) -> Pupitre | None:
+    async def obtener_detalle_estudiante(self, estudiante_id: int) -> Pupitre | None:
         pass
 
     @abstractmethod
-    async def guardar_pupitre(self, pupitre: Pupitre) -> Pupitre:
+    async def actualizar_estado_pupitre(self, pupitre: Pupitre) -> Pupitre:
         pass
 
     @abstractmethod
-    async def obtener_por_grado(self, grado_id: int) -> list[Pupitre]:
+    async def obtener_detalle_estudiantes(
+        self, estudiante_ids: list[int]
+    ) -> list[Pupitre]:
         pass
 
     @abstractmethod
-    async def guardar_muchos_pupitres(self, pupitres: list[Pupitre]) -> int:
+    async def actualizar_estados_pupitres(self, pupitres: list[Pupitre]) -> int:
         pass
 
     @abstractmethod
-    async def obtener_por_grado_con_estudiante(self, grado_id: int) -> list:
-        pass
-
-    @abstractmethod
-    async def obtener_por_estudiante_con_datos(
-        self, estudiante_id: int
-    ) -> tuple[Pupitre, Estudiante] | None:
-        pass
+    async def crear_pupitre(self, estudiante_id: int, estado_pupitre: bool, observacion: str | None) -> Pupitre:
+        pass    
