@@ -5,6 +5,7 @@ from app.modules.classroom.domain.repositories import PupitreRepository
 from sqlmodel import col
 from sqlalchemy.exc import SQLAlchemyError
 
+
 class PupitreRepositoryImpl(PupitreRepository):
     def __init__(self, session: SessionDep):
         self.session = session
@@ -35,11 +36,15 @@ class PupitreRepositoryImpl(PupitreRepository):
         except SQLAlchemyError:
             self.session.rollback()
             raise
-    
-    async def crear_pupitre(self, estudiante_id: int, estado_pupitre: bool, observacion: str | None) -> Pupitre:
+
+    async def crear_pupitre(
+        self, estudiante_id: int, estado_pupitre: bool, observacion: str | None
+    ) -> Pupitre:
         try:
             nuevo_pupitre = Pupitre(
-                estudiante_id=estudiante_id, estado_pupitre=estado_pupitre, observacion=observacion
+                estudiante_id=estudiante_id,
+                estado_pupitre=estado_pupitre,
+                observacion=observacion,
             )
             self.session.add(nuevo_pupitre)
             self.session.commit()
@@ -48,4 +53,3 @@ class PupitreRepositoryImpl(PupitreRepository):
         except SQLAlchemyError:
             self.session.rollback()
             raise
-        

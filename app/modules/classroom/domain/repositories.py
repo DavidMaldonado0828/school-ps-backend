@@ -22,5 +22,7 @@ class PupitreRepository(ABC):
         pass
 
     @abstractmethod
-    async def crear_pupitre(self, estudiante_id: int, estado_pupitre: bool, observacion: str | None) -> Pupitre:
-        pass    
+    async def crear_pupitre(
+        self, estudiante_id: int, estado_pupitre: bool, observacion: str | None
+    ) -> Pupitre:
+        pass

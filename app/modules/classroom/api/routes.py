@@ -57,6 +57,7 @@ async def obtener_pupitre_estudiante(
         status_code=status.HTTP_200_OK,
     ).to_dict()
 
+
 @router.patch("/pupitre/grado/{grado_id}")
 async def actualizar_estado_masivo(
     session: SessionDep,

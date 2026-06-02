@@ -1,5 +1,6 @@
 from app.modules.classroom.domain.repositories import PupitreRepository
 
+
 class PupitreService:
     def __init__(self, repositorio: PupitreRepository):
         self.repositorio = repositorio
@@ -37,6 +38,10 @@ class PupitreService:
         if not pupitre:
             return None
         return pupitre
-    
-    async def crear_pupitre(self, estudiante_id: int, estado_pupitre: bool, observacion: str | None):
-        return await self.repositorio.crear_pupitre(estudiante_id, estado_pupitre, observacion)     
+
+    async def crear_pupitre(
+        self, estudiante_id: int, estado_pupitre: bool, observacion: str | None
+    ):
+        return await self.repositorio.crear_pupitre(
+            estudiante_id, estado_pupitre, observacion
+        )
