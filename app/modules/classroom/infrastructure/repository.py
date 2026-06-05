@@ -10,26 +10,28 @@ class PupitreRepositoryImpl(PupitreRepository):
     def __init__(self, session: SessionDep):
         self.session = session
 
-    async def obtener_detalle_estudiante(self, estudiante_id: int) -> Pupitre | None:
+    # Se obtiene el pupitre al cual pertenece el estudiante, si no tiene pupitre se retorna None
+    async def get_student_desk(self, estudiante_id: int) -> Pupitre | None:
         return self.session.exec(
             select(Pupitre).where(Pupitre.estudiante_id == estudiante_id)
         ).one_or_none()
 
-    async def actualizar_estado_pupitre(self, pupitre: Pupitre) -> Pupitre:
+    # Se actualiza el estado de UN pupitre, se retorna el pupitre actualizado
+    async def update_desk_state(self, pupitre: Pupitre) -> Pupitre:
         self.session.commit()
         self.session.refresh(pupitre)
         return pupitre
 
-    async def obtener_detalle_estudiantes(
-        self, estudiante_ids: list[int]
-    ) -> list[Pupitre]:
+    # Se obtiene la lista de los pupitres asociados a los estudiantes que pertenecen a un mismo grado, si no se encuentran pupitres se retorna None
+    async def list_desks_by_students(self, estudiante_ids: list[int]) -> list[Pupitre]:
         return list(
             self.session.exec(
                 select(Pupitre).where(col(Pupitre.estudiante_id).in_(estudiante_ids))
             ).all()
         )
 
-    async def actualizar_estados_pupitres(self, pupitres: list[Pupitre]) -> int:
+    # Se actualiza el estado de varios pupitres, se retorna la cantidad de pupitres actualizados
+    async def bulk_update_desk_states(self, pupitres: list[Pupitre]) -> int:
         try:
             self.session.commit()
             return len(pupitres)
@@ -37,7 +39,8 @@ class PupitreRepositoryImpl(PupitreRepository):
             self.session.rollback()
             raise
 
-    async def crear_pupitre(
+    # Se crea un nuevo pupitre, se retorna el pupitre creado
+    async def add_desk(
         self, estudiante_id: int, estado_pupitre: bool, observacion: str | None
     ) -> Pupitre:
         try:

@@ -18,14 +18,18 @@ class GetPupitresByGrade:
         estudiantes = self.enrollment_service.get_students_by_grade(grado_id)
         estudiantes_map = {e.id: e for e in estudiantes}
         estudiante_ids = list(estudiantes_map.keys())
-        pupitres = await self.service.obtener_pupitres(estudiante_ids)
+        pupitres = await self.service.get_desks_by_students(estudiante_ids)
         if not pupitres:
             return None
+
+        grado = self.enrollment_service.get_grade(grado_id)
+
         return [
             PupitreStudentOutSchema(
                 id=pupitre.id,
                 nombre_estudiante=estudiantes_map[pupitre.estudiante_id].nombre,
                 documento=estudiantes_map[pupitre.estudiante_id].documento,
+                grado=grado.nombre if grado else 'Sin grado',
                 estado_pupitre=pupitre.estado_pupitre,
                 observacion=pupitre.observacion,
             )

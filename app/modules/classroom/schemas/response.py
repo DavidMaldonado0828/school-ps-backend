@@ -12,6 +12,7 @@ class PupitreStudentOutSchema(BaseModel):
     id: int | None
     nombre_estudiante: str
     documento: str
+    grado: str
     estado_pupitre: bool
     observacion: str | None = Field(default=None, max_length=400)
 

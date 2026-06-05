@@ -14,19 +14,22 @@ class GetPupitreByStudent:
             repository=SQLEnrollmentRepository(session=session)
         )
 
-    async def execute(self, estudiante_id: int) -> PupitreStudentOutSchema | None:
-        pupitre = await self.service.obtener_pupitre_por_estudiante(estudiante_id)
+    async def execute(self, documento_estudiante: str) -> PupitreStudentOutSchema | None:
+        estudiante = self.enrollment_service.get_student_by_document(documento_estudiante)
+        if not estudiante:
+            return None
+        
+        pupitre = await self.service.get_desk_by_student(estudiante.id)
         if not pupitre:
             return None
 
-        estudiante = self.enrollment_service.get_student_by_id(estudiante_id)
-        if not estudiante:
-            return None
+        grado = self.enrollment_service.get_grade(estudiante.grado_id)
 
         return PupitreStudentOutSchema(
             id=pupitre.id,
             nombre_estudiante=estudiante.nombre,
             documento=estudiante.documento,
+            grado=grado.nombre if grado else 'Sin grado',
             estado_pupitre=pupitre.estado_pupitre,
             observacion=pupitre.observacion,
         )

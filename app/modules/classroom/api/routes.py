@@ -10,6 +10,7 @@ from app.modules.classroom.schemas.request import (
 )
 from app.modules.classroom.schemas.response import (
     PupitreOutSchema,
+    PupitreStudentOutSchema,
 )
 from app.shared.utils.response import Response
 from app.modules.classroom.schemas.response import BulkUpdateResponse
@@ -18,8 +19,9 @@ from app.modules.classroom.schemas.response import BulkUpdateResponse
 router = APIRouter()
 
 
+# Se obtiene los pupitres asociados a los estudiantes que pertenecen a un mismo grado, si no se encuentran pupitres se retorna None
 @router.get("/pupitre/grado/{grado_id}")
-async def obtener_pupitres_por_grado(
+async def get_desks_by_grade(
     grado_id: int,
     session: SessionDep,
 ):
@@ -38,13 +40,15 @@ async def obtener_pupitres_por_grado(
     ).to_dict()
 
 
-@router.get("/pupitre/{estudiante_id}")
-async def obtener_pupitre_estudiante(
-    estudiante_id: int,
+
+# Se obtiene el pupitre al cual pertenece el estudiante, si no tiene pupitre se retorna None
+@router.get("/pupitre/{documento_estudiante}")
+async def get_desk_by_student(
+    documento_estudiante: str,
     session: SessionDep,
 ):
     use_case = GetPupitreByStudent(session=session)
-    data = await use_case.execute(estudiante_id=estudiante_id)
+    data = await use_case.execute(documento_estudiante=documento_estudiante)
     if not data:
         return Response(
             data=None,
@@ -52,14 +56,22 @@ async def obtener_pupitre_estudiante(
             status_code=status.HTTP_404_NOT_FOUND,
         ).to_dict()
     return Response(
-        data=data,
+        data=PupitreStudentOutSchema(
+            id=data.id,
+            nombre_estudiante = data.nombre_estudiante,
+            documento = data.documento,
+            grado = data.grado,
+            estado_pupitre=data.estado_pupitre,
+            observacion=data.observacion,
+        ),
         message="Pupitre obtenido exitosamente",
         status_code=status.HTTP_200_OK,
     ).to_dict()
 
 
+# Se actualiza el estado de varios pupitres, se retorna la cantidad de pupitres actualizados
 @router.patch("/pupitre/grado/{grado_id}")
-async def actualizar_estado_masivo(
+async def bulk_update_desk_states(
     session: SessionDep,
     grado_id: int,
     request: BulkUpdateRequest,
@@ -83,8 +95,9 @@ async def actualizar_estado_masivo(
     ).to_dict()
 
 
+# Se actualiza el estado de UN pupitre, se retorna el pupitre actualizado
 @router.patch("/pupitre/{estudiante_id}")
-async def actualizar_estado_pupitre(
+async def update_desk_state(
     session: SessionDep,
     estudiante_id: int,
     request: PupitreInSchema,

@@ -19,7 +19,7 @@ class BulkUpdatePupitreState:
         if not estudiantes:
             return None
         estudiante_ids = [e.id for e in estudiantes]
-        return await self.service.actualizar_estado_pupitres(
+        return await self.service.bulk_update_desk_states(
             estudiante_ids=estudiante_ids,
             nuevo_estado=request.estado_pupitre,
             observacion=request.observacion,
