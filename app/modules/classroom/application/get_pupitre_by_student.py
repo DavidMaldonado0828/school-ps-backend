@@ -1,7 +1,7 @@
 from app.core.db import SessionDep
 from app.modules.classroom.infrastructure.repository import PupitreRepositoryImpl
 from app.modules.classroom.domain.service import PupitreService
-from app.modules.enrollment.domain.service import EnrollmentService
+from app.modules.enrollment.domain.service import StudentService 
 from app.modules.enrollment.infrastructure.repository import SQLEnrollmentRepository
 from app.modules.classroom.schemas.response import PupitreStudentOutSchema
 
@@ -10,12 +10,12 @@ class GetPupitreByStudent:
     def __init__(self, session: SessionDep):
         self.repository = PupitreRepositoryImpl(session=session)
         self.service = PupitreService(repositorio=self.repository)
-        self.enrollment_service = EnrollmentService(
+        self.student_service = StudentService(
             repository=SQLEnrollmentRepository(session=session)
         )
 
     async def execute(self, documento_estudiante: str) -> PupitreStudentOutSchema | None:
-        estudiante = self.enrollment_service.get_student_by_document(documento_estudiante)
+        estudiante = self.student_service.get_student_by_document(documento_estudiante)
         if not estudiante:
             return None
         
@@ -23,10 +23,11 @@ class GetPupitreByStudent:
         if not pupitre:
             return None
 
-        grado = self.enrollment_service.get_grade(estudiante.grado_id)
+        grado = self.student_service.get_grade(estudiante.grado_id)
 
         return PupitreStudentOutSchema(
             id=pupitre.id,
+            estudiante_id=pupitre.estudiante_id,
             nombre_estudiante=estudiante.nombre,
             documento=estudiante.documento,
             grado=grado.nombre if grado else 'Sin grado',

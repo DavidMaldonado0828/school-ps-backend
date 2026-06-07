@@ -58,6 +58,7 @@ async def get_desk_by_student(
     return Response(
         data=PupitreStudentOutSchema(
             id=data.id,
+            estudiante_id=data.estudiante_id,
             nombre_estudiante = data.nombre_estudiante,
             documento = data.documento,
             grado = data.grado,

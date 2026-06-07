@@ -10,6 +10,7 @@ class PupitreOutSchema(BaseModel):
 
 class PupitreStudentOutSchema(BaseModel):
     id: int | None
+    estudiante_id: int 
     nombre_estudiante: str
     documento: str
     grado: str
