@@ -1,5 +1,6 @@
 from fastapi import APIRouter, status
 from app.core.db import SessionDep
+from app.modules.classroom.application.get_grades import GetGrades
 from app.modules.classroom.application.get_pupitres_by_grade import GetPupitresByGrade
 from app.modules.classroom.application.get_pupitre_by_student import GetPupitreByStudent
 from app.modules.classroom.application.update_pupitre import UpdatePupitreState
@@ -17,6 +18,13 @@ from app.modules.classroom.schemas.response import BulkUpdateResponse
 
 
 router = APIRouter()
+
+
+@router.get("/pupitre/grades")
+async def get_grades(session: SessionDep):
+    use_case = GetGrades(session)
+    data = await use_case.execute()
+    return Response(data=data, message="Lista de grados obtenida").to_dict()
 
 
 # Se obtiene los pupitres asociados a los estudiantes que pertenecen a un mismo grado, si no se encuentran pupitres se retorna None
@@ -40,7 +48,6 @@ async def get_desks_by_grade(
     ).to_dict()
 
 
-
 # Se obtiene el pupitre al cual pertenece el estudiante, si no tiene pupitre se retorna None
 @router.get("/pupitre/{documento_estudiante}")
 async def get_desk_by_student(
@@ -59,9 +66,10 @@ async def get_desk_by_student(
         data=PupitreStudentOutSchema(
             id=data.id,
             estudiante_id=data.estudiante_id,
-            nombre_estudiante = data.nombre_estudiante,
-            documento = data.documento,
-            grado = data.grado,
+            nombre_estudiante=data.nombre_estudiante,
+            documento=data.documento,
+            grado=data.grado,
+            docente_titular=data.docente_titular,
             estado_pupitre=data.estado_pupitre,
             observacion=data.observacion,
         ),

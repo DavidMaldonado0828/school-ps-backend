@@ -58,10 +58,57 @@ def truncate_all(session: Session):
 def seed_all(session: Session):
     print("[*] Sembrando datos...\n")
 
-    # -- 1. GRADOS
-    print("[1] Grados...")
-    grados_data = ["Sexto", "Septimo", "Octavo", "Noveno", "Decimo", "Once"]
-    grados = [Grado(nombre=n) for n in grados_data]
+    # -- 1. DOCENTES (primero porque grados dependen de ellos)
+    print("[1] Docentes...")
+    docentes = [
+        Docente(
+            nombre="Prof. Ramirez",
+            documento="555001",
+            estado=True,
+            asignatura="Matematicas",
+        ),
+        Docente(
+            nombre="Prof. Serrano",
+            documento="555002",
+            estado=True,
+            asignatura="Espanol",
+        ),
+        Docente(
+            nombre="Prof. Mendoza",
+            documento="555003",
+            estado=True,
+            asignatura="Ciencias",
+        ),
+        Docente(
+            nombre="Prof. Gutierrez",
+            documento="555004",
+            estado=True,
+            asignatura="Historia",
+        ),
+        Docente(
+            nombre="Prof. Vargas", documento="555005", estado=True, asignatura="Ingles"
+        ),
+        Docente(
+            nombre="Prof. Castro", documento="555006", estado=True, asignatura="Fisica"
+        ),
+    ]
+    session.add_all(docentes)
+    session.commit()
+    for d in docentes:
+        session.refresh(d)
+    print(f"   OK: {len(docentes)} docentes\n")
+
+    # -- 2. GRADOS (con docente titular asignado)
+    print("[2] Grados...")
+    grados_data = [
+        ("Sexto", docentes[0].id),
+        ("Septimo", docentes[1].id),
+        ("Octavo", docentes[2].id),
+        ("Noveno", docentes[3].id),
+        ("Decimo", docentes[4].id),
+        ("Once", docentes[5].id),
+    ]
+    grados = [Grado(nombre=n, docente_titular_id=did) for n, did in grados_data]
     session.add_all(grados)
     session.commit()
     for g in grados:
@@ -70,8 +117,8 @@ def seed_all(session: Session):
     grado_once = grados[5]
     print(f"   OK: {len(grados)} grados\n")
 
-    # -- 2. ACUDIENTES
-    print("[2] Acudientes...")
+    # -- 3. ACUDIENTES
+    print("[3] Acudientes...")
     acudientes = [
         Acudiente(
             nombre="Carlos Perez",
@@ -109,32 +156,6 @@ def seed_all(session: Session):
     for a in acudientes:
         session.refresh(a)
     print(f"   OK: {len(acudientes)} acudientes\n")
-
-    # -- 3. DOCENTES
-    print("[3] Docentes...")
-    docentes = [
-        Docente(
-            nombre="Prof. Ramirez",
-            documento="555001",
-            estado=True,
-            asignatura="Matematicas",
-        ),
-        Docente(
-            nombre="Prof. Serrano",
-            documento="555002",
-            estado=True,
-            asignatura="Espanol",
-        ),
-        Docente(
-            nombre="Prof. Mendoza",
-            documento="555003",
-            estado=True,
-            asignatura="Ciencias",
-        ),
-    ]
-    session.add_all(docentes)
-    session.commit()
-    print(f"   OK: {len(docentes)} docentes\n")
 
     # -- 4. PERIODOS
     print("[4] Periodos...")
@@ -199,20 +220,13 @@ def seed_all(session: Session):
     session.commit()
     for c in comps:
         session.refresh(c)
-    pruebas = [c for c in comps if not c.uso_matricula]
-    print(
-        f"   OK: {len(comps)} complementarios ({len(pruebas)} para pruebas, {len(comps) - len(pruebas)} para matricula)\n"
-    )
+    print(f"   OK: {len(comps)} complementarios\n")
 
     # -- 6. PARAMETRIZAR MATRICULA
     print("[6] Parametrizacion de matriculas...")
     valores = [350000, 360000, 370000, 380000, 400000, 420000]
     params = [
-        ParametrizarMatricula(
-            grado_id=int(grados[i].id),  # type: ignore
-            anio=2026,
-            valor=valores[i],
-        )
+        ParametrizarMatricula(grado_id=int(grados[i].id), anio=2026, valor=valores[i])
         for i in range(len(grados))
     ]
     session.add_all(params)
@@ -243,13 +257,10 @@ def seed_all(session: Session):
 
     estudiantes = []
     for i, (nombre, doc) in enumerate(nombres_decimo):
-        acudiente_actual = acudientes[i % len(acudientes)]
         estudiantes.append(
             Estudiante(
-                grado_id=int(grado_decimo.id) if grado_decimo.id is not None else 0,
-                acudiente_id=int(acudiente_actual.id)
-                if acudiente_actual.id is not None
-                else 0,
+                grado_id=int(grado_decimo.id),
+                acudiente_id=int(acudientes[i % len(acudientes)].id),
                 nombre=nombre,
                 documento=doc,
                 activo=True,
@@ -257,13 +268,10 @@ def seed_all(session: Session):
             )
         )
     for i, (nombre, doc) in enumerate(nombres_once):
-        acudiente_actual = acudientes[i % len(acudientes)]
         estudiantes.append(
             Estudiante(
-                grado_id=int(grado_once.id) if grado_once.id is not None else 0,
-                acudiente_id=int(acudiente_actual.id)
-                if acudiente_actual.id is not None
-                else 0,
+                grado_id=int(grado_once.id),
+                acudiente_id=int(acudientes[i % len(acudientes)].id),
                 nombre=nombre,
                 documento=doc,
                 activo=True,
@@ -273,8 +281,10 @@ def seed_all(session: Session):
 
     session.add_all(estudiantes)
     session.commit()
-    print(f"  Acudientes:          {len(acudientes)}")
+
     print(f"  Docentes:            {len(docentes)}")
+    print(f"  Grados:              {len(grados)}")
+    print(f"  Acudientes:          {len(acudientes)}")
     print(f"  Períodos:            {len(periodos)}")
     print(f"  Complementarios:     {len(comps)}")
     print(f"  Parametr. matríc.:   {len(params)}")
