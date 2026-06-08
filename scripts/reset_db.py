@@ -4,23 +4,24 @@ Elimina todos los datos y recrea datos de prueba para todos los módulos.
 """
 
 from datetime import datetime
+
 from sqlmodel import Session, delete, text
 
 from app.core.db import engine
-from app.modules.tests.infrastructure.models import DetallePrueba
 from app.modules.enrollment.infrastructure.models import (
-    Grado,
     Acudiente,
-    Estudiante,
-    Docente,
-    Periodo,
     Complementario,
-    ParametrizarMatricula,
-    Matricula,
     DetalleMatricula,
+    Docente,
+    Estudiante,
+    Grado,
+    Matricula,
     Pago,
     PagoDetalle,
+    ParametrizarMatricula,
+    Periodo,
 )
+from app.modules.tests.infrastructure.models import DetallePrueba
 
 
 def truncate_all(session: Session):
@@ -262,7 +263,6 @@ def seed_all(session: Session):
     print("[6] Parametrizacion de matriculas...")
     valores = [350000, 360000, 370000, 380000, 400000, 420000]
     params = [
-        ParametrizarMatricula(grado_id=int(grados[i].id), anio=2026, valor=valores[i])
         ParametrizarMatricula(
             grado_id=int(grados[i].id),  # type: ignore
             anio=2026,
@@ -298,10 +298,6 @@ def seed_all(session: Session):
 
     estudiantes = []
     for i, (nombre, doc) in enumerate(nombres_decimo):
-        estudiantes.append(
-            Estudiante(
-                grado_id=int(grado_decimo.id),
-                acudiente_id=int(acudientes[i % len(acudientes)].id),
         acudiente_actual = acudientes[i % len(acudientes)]
         estudiantes.append(
             Estudiante(
@@ -316,10 +312,6 @@ def seed_all(session: Session):
             )
         )
     for i, (nombre, doc) in enumerate(nombres_once):
-        estudiantes.append(
-            Estudiante(
-                grado_id=int(grado_once.id),
-                acudiente_id=int(acudientes[i % len(acudientes)].id),
         acudiente_actual = acudientes[i % len(acudientes)]
         estudiantes.append(
             Estudiante(
