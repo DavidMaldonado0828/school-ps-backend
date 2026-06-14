@@ -70,7 +70,7 @@ async def get_desk_by_student(
             documento=data.documento,
             grado=data.grado,
             docente_titular=data.docente_titular,
-            estado_pupitre=data.estado_pupitre,
+            estado=data.estado,
             observacion=data.observacion,
         ),
         message="Pupitre obtenido exitosamente",
@@ -78,7 +78,7 @@ async def get_desk_by_student(
     ).to_dict()
 
 
-# Se actualiza el estado de varios pupitres, se retorna la cantidad de pupitres actualizados
+# Se actualiza el estado de varios pupitres (confirmación de pago), se retorna la cantidad de pupitres actualizados
 @router.patch("/pupitre/grado/{grado_id}")
 async def bulk_update_desk_states(
     session: SessionDep,
@@ -97,14 +97,17 @@ async def bulk_update_desk_states(
         ).to_dict()
 
     return Response(
-        data=BulkUpdateResponse(total_actualizados=data["total_actualizados"]),
+        data=BulkUpdateResponse(
+            total_actualizados=data["total_actualizados"],
+            ids_no_encontrados=data["ids_no_encontrados"],
+        ),
         message="Estado de pupitres actualizado exitosamente",
         status_code=status.HTTP_200_OK,
         details={"message": "Estado de pupitres actualizado exitosamente"},
     ).to_dict()
 
 
-# Se actualiza el estado de UN pupitre, se retorna el pupitre actualizado
+# Se confirma el pago de UN pupitre (pasa de pendiente a pagado), se retorna el pupitre actualizado
 @router.patch("/pupitre/{estudiante_id}")
 async def update_desk_state(
     session: SessionDep,
@@ -134,7 +137,7 @@ async def update_desk_state(
         data=PupitreOutSchema(
             id=data.id,
             estudiante_id=data.estudiante_id,
-            estado_pupitre=data.estado_pupitre,
+            estado=data.estado,
             observacion=data.observacion,
         ),
         message="Estado del pupitre actualizado exitosamente",
