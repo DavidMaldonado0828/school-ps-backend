@@ -122,8 +122,8 @@ class ClassroomEnrollmentAdapter(ClassroomEnrollmentService):
         self, nombre: str
     ) -> ComplementarioEntity | None:
         statement = select(Complementario).where(
-            col(Complementario.tipo_complementario) == nombre,
-            col(Complementario.estado_complemento) == "activo",
+            col(Complementario.nombre) == nombre,
+            col(Complementario.estado_complemento) == "Activo",
         )
 
         comp = self.session.exec(statement).first()
@@ -133,7 +133,7 @@ class ClassroomEnrollmentAdapter(ClassroomEnrollmentService):
 
         return ComplementarioEntity(
             id=comp.id,
-            tipo_complementario=comp.tipo_complementario,
+            nombre=comp.nombre,
             valor=comp.valor,
             anio=comp.anio,
         )

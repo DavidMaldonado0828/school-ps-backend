@@ -23,16 +23,6 @@ class PupitreService:
             nombre_complementario
         )
 
-    # Calcula el total a pagar para un grupo de estudiantes (informativo, sin parciales)
-    async def calculate_total_payment(self, ids_estudiantes: list[int]) -> int:
-        total_estudiantes = len(ids_estudiantes)
-        complementario = await self.get_complementario_pupitre()
-
-        if not complementario:
-            return 0
-
-        return total_estudiantes * complementario.valor
-
     def _map_to_entity(self, data) -> DetallePupitreEntity:
         return DetallePupitreEntity(
             id=data.id or 0,
@@ -40,30 +30,26 @@ class PupitreService:
             estado=data.estado,
             observacion=data.observacion,
         )
-
+    
     # Se confirma el pago de UN pupitre (no recibe valor, solo confirma)
     async def update_payment_status(
-        self, estudiante_id: int, observacion: str | None
+    self, estudiante_id: int, observacion: str | None
     ) -> DetallePupitreEntity | None:
 
         complementario = await self.get_complementario_pupitre()
-
         if not complementario:
             return None
 
-        pupitre = await self.repositorio.get_student_desk(
-            estudiante_id, complementario.id
-        )
-
+        pupitre = await self.repositorio.get_student_desk(estudiante_id, complementario.id)
         if not pupitre:
             return None
 
-        pupitre.estado = ESTADO_PAGADO
+        pupitre.estado = ESTADO_PENDIENTE if pupitre.estado == ESTADO_PAGADO else ESTADO_PAGADO
         pupitre.observacion = observacion
 
         pupitre_actualizado = await self.repositorio.update_desk(pupitre)
-
         return self._map_to_entity(pupitre_actualizado)
+    
 
     # Confirma el pago de varios pupitres de un mismo grado, retorna cantidad actualizados
     async def bulk_update_desk_states(
