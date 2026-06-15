@@ -1,6 +1,10 @@
 # classroom/application/contracts.py
 from abc import ABC, abstractmethod
-from app.modules.classroom.domain.entities import GradeEntity, StudentEntity, ComplementarioEntity
+from app.modules.classroom.domain.entities import (
+    GradeEntity,
+    StudentEntity,
+    ComplementarioEntity,
+)
 
 
 class ClassroomEnrollmentService(ABC):
@@ -22,4 +26,6 @@ class ClassroomEnrollmentService(ABC):
     def get_all_grades(self) -> list[GradeEntity]: ...
 
     @abstractmethod
-    async def get_complementary_by_name(self, nombre: str) -> ComplementarioEntity | None: ...
+    async def get_complementary_by_name(
+        self, nombre: str
+    ) -> ComplementarioEntity | None: ...

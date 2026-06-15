@@ -188,7 +188,7 @@ def main():
         pupitres: list[DetallePupitre] = [
             DetallePupitre(
                 estudiante_id=estudiante.id or 1,
-                estado_pupitre=True,
+                estado="Pendiente",
                 observacion=None,
             )
             for estudiante in estudiantes

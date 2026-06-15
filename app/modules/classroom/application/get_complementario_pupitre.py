@@ -1,7 +1,9 @@
 # GetPupitreComplementario (nuevo caso de uso)
 from app.core.db import SessionDep
 from app.modules.classroom.domain.service import PupitreService
-from app.modules.classroom.infrastructure.enrollment_adapter import ClassroomEnrollmentAdapter
+from app.modules.classroom.infrastructure.enrollment_adapter import (
+    ClassroomEnrollmentAdapter,
+)
 from app.modules.classroom.infrastructure.repository import PupitreRepositoryImpl
 
 

@@ -17,7 +17,9 @@ class PupitreRepository(ABC):
 
     # Se obtiene la lista de pupitres asociados a un grupo de estudiantes (ej. por curso)
     @abstractmethod
-    async def list_desks_by_students(self, estudiante_ids: list[int]) -> list[DetallePupitre]:
+    async def list_desks_by_students(
+        self, estudiante_ids: list[int]
+    ) -> list[DetallePupitre]:
         pass
 
     # Se obtiene la lista de pupitres de todos los estudiantes de un grado

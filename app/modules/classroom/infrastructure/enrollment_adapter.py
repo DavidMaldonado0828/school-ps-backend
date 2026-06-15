@@ -117,7 +117,7 @@ class ClassroomEnrollmentAdapter(ClassroomEnrollmentService):
             )
 
         return resultado
-    
+
     async def get_complementary_by_name(
         self, nombre: str
     ) -> ComplementarioEntity | None:

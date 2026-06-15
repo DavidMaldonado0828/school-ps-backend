@@ -7,4 +7,3 @@ class PupitreInSchema(BaseModel):
 
 class BulkUpdateRequest(BaseModel):
     estudiante_ids: list[int]
-

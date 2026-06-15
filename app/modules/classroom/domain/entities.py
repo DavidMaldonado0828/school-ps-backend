@@ -24,6 +24,6 @@ class GradeEntity(BaseModel):
 
 class ComplementarioEntity(BaseModel):
     id: int
-    nombre : str
+    nombre: str
     valor: int
     anio: int

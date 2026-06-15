@@ -1,6 +1,8 @@
 from fastapi import APIRouter, status
 from app.core.db import SessionDep
-from app.modules.classroom.application.get_complementario_pupitre import GetPupitreComplementario
+from app.modules.classroom.application.get_complementario_pupitre import (
+    GetPupitreComplementario,
+)
 from app.modules.classroom.application.get_grades import GetGrades
 from app.modules.classroom.application.get_pupitres_by_grade import GetPupitresByGrade
 from app.modules.classroom.application.get_pupitre_by_student import GetPupitreByStudent
@@ -27,6 +29,7 @@ async def get_grades(session: SessionDep):
     data = await use_case.execute()
     return Response(data=data, message="Lista de grados obtenida").to_dict()
 
+
 @router.get("/pupitre/complementario")
 async def get_pupitre_complementario(session: SessionDep):
     use_case = GetPupitreComplementario(session=session)
@@ -44,6 +47,7 @@ async def get_pupitre_complementario(session: SessionDep):
         message="Complementario de pupitre obtenido exitosamente",
         status_code=status.HTTP_200_OK,
     ).to_dict()
+
 
 # Se obtiene los pupitres asociados a los estudiantes que pertenecen a un mismo grado, si no se encuentran pupitres se retorna None
 @router.get("/pupitre/grado/{grado_id}")

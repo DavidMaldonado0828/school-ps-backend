@@ -34,10 +34,14 @@ class PupitreRepositoryImpl(PupitreRepository):
             raise
 
     # Se obtiene la lista de pupitres asociados a un grupo de estudiantes (ej. por curso)
-    async def list_desks_by_students(self, estudiante_ids: list[int]) -> list[DetallePupitre]:
+    async def list_desks_by_students(
+        self, estudiante_ids: list[int]
+    ) -> list[DetallePupitre]:
         return list(
             self.session.exec(
-                select(DetallePupitre).where(col(DetallePupitre.estudiante_id).in_(estudiante_ids))
+                select(DetallePupitre).where(
+                    col(DetallePupitre.estudiante_id).in_(estudiante_ids)
+                )
             ).all()
         )
 
@@ -46,7 +50,9 @@ class PupitreRepositoryImpl(PupitreRepository):
         return list(
             self.session.exec(
                 select(DetallePupitre)
-                .join(Estudiante, col(DetallePupitre.estudiante_id) == col(Estudiante.id))
+                .join(
+                    Estudiante, col(DetallePupitre.estudiante_id) == col(Estudiante.id)
+                )
                 .where(col(Estudiante.grado_id) == grado_id)
             ).all()
         )
