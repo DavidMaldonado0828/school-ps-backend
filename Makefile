@@ -10,7 +10,7 @@ lint:
 format:
 	@uv run ruff format
 
-install-dev:make set-db
+install-dev: set-db
 	@uv sync --group dev
 
 install-prod:
