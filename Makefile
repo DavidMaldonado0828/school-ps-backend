@@ -10,7 +10,7 @@ lint:
 format:
 	@uv run ruff format
 
-install-dev: 
+install-dev:
 	@uv sync --group dev
 
 install-prod:
